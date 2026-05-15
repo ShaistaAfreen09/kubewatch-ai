@@ -15,9 +15,6 @@ KubeWatch AI provides a centralized backend for monitoring Kubernetes clusters, 
 - **Prometheus metrics** expose observability data for monitoring and alerting.
 - **WebSocket hub** enables real-time incident notifications.
 
-## System Architecture
-
-![KubeWatch AI Architecture](docs/architecture.png)
 
 
 ## Tech Stack
