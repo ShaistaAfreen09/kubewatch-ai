@@ -8,6 +8,7 @@ import (
 	"k8s.io/api/core/v1"
 	ws "kubewatch-ai/internal/adapter/websocket"
 	"kubewatch-ai/internal/core/service"
+	"kubewatch-ai/internal/infrastructure/k8s"
 )
 
 type apiError struct {
@@ -109,4 +110,9 @@ func WebSocketHandler(c *gin.Context, hub *ws.Hub) {
 	}
 	client := ws.NewClient(conn)
 	hub.Register <- client
+}
+
+func ClusterInfoHandler(c *gin.Context, k8sClient *k8s.Client) {
+	info := k8sClient.GetClusterInfo(c.Request.Context())
+	respondSuccess(c, http.StatusOK, info)
 }

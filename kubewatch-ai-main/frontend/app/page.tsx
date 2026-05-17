@@ -1,7 +1,7 @@
 import DashboardShell from "@/components/dashboard-shell";
 import { MetricCard } from "@/components/ui/metric-card";
 import { HealthWidget } from "@/components/ui/health-widget";
-import { AlertsPanel } from "@/components/alerts-panel";
+import { LiveIncidentFeed } from "@/components/live-incident-feed";
 import { MetricsChart } from "@/components/metrics-chart";
 import { IncidentCard } from "@/components/incident-card";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -84,17 +84,7 @@ export default function Home() {
         </section>
 
         <aside className="space-y-6">
-          <Card className="border-white/10 bg-slate-950/80">
-            <CardHeader>
-              <div className="flex items-center gap-3 text-slate-100">
-                <Activity className="h-5 w-5 text-cyan-400" />
-                <CardTitle>Realtime alerts</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <AlertsPanel />
-            </CardContent>
-          </Card>
+          <LiveIncidentFeed />
 
           <Card className="border-white/10 bg-slate-950/80">
             <CardHeader>

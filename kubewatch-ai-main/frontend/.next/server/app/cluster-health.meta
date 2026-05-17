@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/cluster-health/layout,_N_T_/cluster-health/page,_N_T_/cluster-health"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/cluster-health/__PAGE__",
+    "/cluster-health",
+    "/_index",
+    "/_head"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/cluster-health/page": "/cluster-health",
+  "/favicon.ico/route": "/favicon.ico",
+  "/incidents/page": "/incidents",
+  "/namespaces/page": "/namespaces",
+  "/page": "/",
+  "/workloads/page": "/workloads"
+}

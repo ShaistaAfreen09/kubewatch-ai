@@ -1,6 +1,6 @@
 import DashboardShell from "@/components/dashboard-shell";
 import { IncidentCard } from "@/components/incident-card";
-import { AlertsPanel } from "@/components/alerts-panel";
+import { LiveIncidentFeed } from "@/components/live-incident-feed";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 type IncidentSeverity = "critical" | "high" | "medium" | "low";
@@ -64,7 +64,7 @@ export default function IncidentsPage() {
         </section>
 
         <aside className="space-y-6">
-          <AlertsPanel />
+          <LiveIncidentFeed />
           <Card className="border-white/10 bg-slate-950/80">
             <CardHeader>
               <CardTitle>Incident Triage</CardTitle>

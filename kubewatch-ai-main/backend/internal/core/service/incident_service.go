@@ -7,6 +7,7 @@ import (
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"kubewatch-ai/internal/adapter/websocket"
 	"kubewatch-ai/internal/core/model"
@@ -53,7 +54,7 @@ func (s *IncidentService) GetNamespaces(ctx context.Context) ([]string, error) {
 }
 
 func (s *IncidentService) GetPods(ctx context.Context) ([]corev1.Pod, error) {
-	return s.monitor.ListPods(ctx, "")
+	return s.monitor.ListPods(ctx, metav1.NamespaceAll)
 }
 
 func (s *IncidentService) GetClusterHealth(ctx context.Context) (model.ClusterHealth, error) {
@@ -96,16 +97,16 @@ func (s *IncidentService) GetIncidents(ctx context.Context) ([]model.Incident, e
 }
 
 func (s *IncidentService) refreshCluster(ctx context.Context) {
-	pods, _ := s.monitor.ListPods(ctx, "")
-	deployments, _ := s.monitor.ListDeployments(ctx, "")
+	pods, _ := s.monitor.ListPods(ctx, metav1.NamespaceAll)
+	deployments, _ := s.monitor.ListDeployments(ctx, metav1.NamespaceAll)
 	nodes, _ := s.monitor.ListNodes(ctx)
-	services, _ := s.monitor.ListServices(ctx, "")
+	services, _ := s.monitor.ListServices(ctx, metav1.NamespaceAll)
 	namespaces, _ := s.monitor.ListNamespaces(ctx)
 
 	incidents := make([]model.Incident, 0)
-	incidents = append(incidents, mustDetect(s.monitor.DetectCrashLoopBackOff(ctx, ""))...)
-	incidents = append(incidents, mustDetect(s.monitor.DetectUnhealthyPods(ctx, ""))...)
-	incidents = append(incidents, mustDetect(s.monitor.DetectDeploymentReplicaMismatches(ctx, ""))...)
+	incidents = append(incidents, mustDetect(s.monitor.DetectCrashLoopBackOff(ctx, metav1.NamespaceAll))...)
+	incidents = append(incidents, mustDetect(s.monitor.DetectUnhealthyPods(ctx, metav1.NamespaceAll))...)
+	incidents = append(incidents, mustDetect(s.monitor.DetectDeploymentReplicaMismatches(ctx, metav1.NamespaceAll))...)
 
 	incidentCounters := map[string]int{}
 	incidentNamespaces := map[string]struct{}{}
@@ -130,14 +131,41 @@ func (s *IncidentService) refreshCluster(ctx context.Context) {
 	s.clusterOverview = overview
 	s.mu.Unlock()
 
+	healthyPods := countHealthyPods(pods)
+	readyNodes := overview.ReadyNodes
+
 	s.metrics.UpdateIncidentCounts(len(incidents))
+	s.metrics.UpdateUnhealthyWorkloads(
+		incidentCounters["CrashLoopBackOff"],
+		incidentCounters["UnhealthyPod"],
+		incidentCounters["DeploymentReplicaMismatch"],
+	)
+	s.metrics.UpdateClusterHealth(healthyPods, readyNodes)
 	s.metrics.UpdateOverviewMetrics(len(nodes), len(pods), len(deployments), len(services))
 
-	payload, _ := json.Marshal(wsPayload{Incidents: incidents, Timestamp: time.Now()})
+	payload, _ := json.Marshal(wsPayload{Type: "snapshot", Incidents: incidents, Timestamp: time.Now()})
 	s.hub.Broadcast(payload)
 }
 
+func countHealthyPods(pods []corev1.Pod) int {
+	healthy := 0
+	for _, pod := range pods {
+		ready := false
+		for _, condition := range pod.Status.Conditions {
+			if condition.Type == corev1.PodReady && condition.Status == corev1.ConditionTrue {
+				ready = true
+				break
+			}
+		}
+		if ready && pod.Status.Phase == corev1.PodRunning {
+			healthy++
+		}
+	}
+	return healthy
+}
+
 type wsPayload struct {
+	Type      string           `json:"type"`
 	Incidents []model.Incident `json:"incidents"`
 	Timestamp time.Time        `json:"timestamp"`
 }
