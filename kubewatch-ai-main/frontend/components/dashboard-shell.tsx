@@ -9,6 +9,7 @@ const navItems = [
   { href: "/cluster-health", label: "Cluster Health" },
   { href: "/namespaces", label: "Namespaces" },
   { href: "/workloads", label: "Workloads" },
+  { href: "/open-telemetry", label: "OpenTelemetry" },
 ];
 
 interface DashboardShellProps {
@@ -33,7 +34,9 @@ export default function DashboardShell({ title, description, children }: Dashboa
                 {item.label}
               </Link>
             ))}
-            <Button variant="ghost">Open Telemetry</Button>
+            <Link href="/open-telemetry" className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200 transition hover:bg-emerald-500/15">
+              View traces
+            </Link>
           </div>
         </header>
 
