@@ -34,6 +34,8 @@ func NewRouter(k8sClient *k8s.Client, incidentService *service.IncidentService, 
 	{
 		api.GET("/overview", func(c *gin.Context) { OverviewHandler(c, incidentService) })
 		api.GET("/pods", func(c *gin.Context) { PodsHandler(c, incidentService) })
+		api.GET("/pods/details", func(c *gin.Context) { PodDetailsHandler(c, incidentService) })
+		api.GET("/pods/unhealthy", func(c *gin.Context) { UnhealthyPodsHandler(c, incidentService) })
 		api.GET("/namespaces", func(c *gin.Context) { NamespacesHandler(c, incidentService) })
 		api.GET("/incidents", func(c *gin.Context) { IncidentListHandler(c, incidentService) })
 		api.GET("/cluster-health", func(c *gin.Context) { ClusterHealthHandler(c, incidentService) })

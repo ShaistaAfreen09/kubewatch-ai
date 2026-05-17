@@ -83,6 +83,24 @@ func PodsHandler(c *gin.Context, service *service.IncidentService) {
 	respondSuccess(c, http.StatusOK, gin.H{"pods": summaries})
 }
 
+func PodDetailsHandler(c *gin.Context, service *service.IncidentService) {
+	details, err := service.GetPodDetails(c.Request.Context())
+	if err != nil {
+		respondError(c, http.StatusInternalServerError, err)
+		return
+	}
+	respondSuccess(c, http.StatusOK, gin.H{"pods": details})
+}
+
+func UnhealthyPodsHandler(c *gin.Context, service *service.IncidentService) {
+	unhealthy, err := service.GetUnhealthyPods(c.Request.Context())
+	if err != nil {
+		respondError(c, http.StatusInternalServerError, err)
+		return
+	}
+	respondSuccess(c, http.StatusOK, gin.H{"unhealthyPods": unhealthy})
+}
+
 func IncidentListHandler(c *gin.Context, service *service.IncidentService) {
 	incidents, err := service.GetIncidents(c.Request.Context())
 	if err != nil {

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"sync"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 
 type IncidentService struct {
 	monitor         *KubernetesMonitor
+	podService      *k8s.PodService
 	metrics         *monitoring.PrometheusMetrics
 	hub             *websocket.Hub
 	mu              sync.RWMutex
@@ -25,7 +27,12 @@ type IncidentService struct {
 }
 
 func NewIncidentService(client *k8s.Client, metrics *monitoring.PrometheusMetrics, hub *websocket.Hub) *IncidentService {
-	return &IncidentService{monitor: NewKubernetesMonitor(client), metrics: metrics, hub: hub}
+	return &IncidentService{
+		monitor:    NewKubernetesMonitor(client),
+		podService: k8s.NewPodService(client),
+		metrics:    metrics,
+		hub:        hub,
+	}
 }
 
 func (s *IncidentService) StartPolling(ctx context.Context) {
@@ -55,6 +62,24 @@ func (s *IncidentService) GetNamespaces(ctx context.Context) ([]string, error) {
 
 func (s *IncidentService) GetPods(ctx context.Context) ([]corev1.Pod, error) {
 	return s.monitor.ListPods(ctx, metav1.NamespaceAll)
+}
+
+func (s *IncidentService) GetPodDetails(ctx context.Context) ([]k8s.PodDetail, error) {
+	details, err := s.podService.FetchAllPods(ctx)
+	if err != nil {
+		log.Printf("error: failed to get pod details: %v", err)
+		return nil, err
+	}
+	return details, nil
+}
+
+func (s *IncidentService) GetUnhealthyPods(ctx context.Context) ([]k8s.PodDetail, error) {
+	unhealthy, err := s.podService.GetUnhealthyPods(ctx)
+	if err != nil {
+		log.Printf("error: failed to get unhealthy pods: %v", err)
+		return nil, err
+	}
+	return unhealthy, nil
 }
 
 func (s *IncidentService) GetClusterHealth(ctx context.Context) (model.ClusterHealth, error) {
