@@ -1,7 +1,7 @@
 import DashboardShell from "@/components/dashboard-shell";
 import { MetricCard } from "@/components/ui/metric-card";
 import { LiveIncidentFeed } from "@/components/live-incident-feed";
-import { MetricsChart } from "@/components/metrics-chart";
+import { IncidentTrendChart } from "@/components/incident-trend-chart";
 import { IncidentCard } from "@/components/incident-card";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { ArrowRight, Bell, Cpu, ShieldCheck, Sparkles, Wrench } from "lucide-react";
@@ -105,7 +105,7 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          <MetricsChart title="Incident trend" labels={["1h", "2h", "3h", "4h", "5h", "6h"]} values={[3, 5, 6, 4, 7, 8]} accent="bg-emerald-400/80" />
+          <IncidentTrendChart />
 
           <Card className="border border-slate-200/80 bg-gradient-to-br from-white via-slate-50 to-white shadow-sm dark:border-white/10 dark:bg-gradient-to-br dark:from-slate-950/90 dark:via-slate-900/90 dark:to-slate-950/90">
             <CardHeader>
@@ -131,6 +131,34 @@ export default function Home() {
                       <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-200">{deployment.status}</span>
                       <span className="rounded-full border border-slate-200/80 bg-white/80 px-3 py-1 text-xs text-slate-700 dark:border-white/10 dark:bg-slate-800 dark:text-slate-200">{deployment.confidence}</span>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border border-slate-200/80 bg-gradient-to-br from-white via-slate-50 to-white shadow-sm dark:border-white/10 dark:bg-gradient-to-br dark:from-slate-950/90 dark:via-slate-900/90 dark:to-slate-950/90">
+            <CardHeader>
+              <div className="flex items-center gap-3 text-slate-900 dark:text-white">
+                <ShieldCheck className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
+                <CardTitle>Service dependency map</CardTitle>
+              </div>
+              <CardDescription>Core upstream and downstream relationships across the platform.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2">
+                {[
+                  { name: "payments-api", status: "Healthy", detail: "API + database path" },
+                  { name: "cache-worker", status: "Watch", detail: "Restart loop risk" },
+                  { name: "auth-proxy", status: "Stable", detail: "Ingress and SSO" },
+                  { name: "checkout-ui", status: "Healthy", detail: "Frontend dependency" },
+                ].map((service) => (
+                  <div key={service.name} className="rounded-3xl border border-slate-200/70 bg-slate-50/90 p-4 dark:border-white/10 dark:bg-slate-900/80">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{service.name}</p>
+                      <span className={`rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.24em] ${service.status === "Watch" ? "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-200" : "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200"}`}>{service.status}</span>
+                    </div>
+                    <p className="mt-2 text-xs uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">{service.detail}</p>
                   </div>
                 ))}
               </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Bell, CheckCheck, Moon, Shield, Sparkles, Sun } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +37,7 @@ export default function DashboardShell({ title, description, children }: Dashboa
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   });
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notificationsLoading, setNotificationsLoading] = useState(true);
   const [notifications, setNotifications] = useState(() =>
     incidentData.slice(0, 4).map((incident, index) => ({
       id: incident.id,
@@ -49,12 +50,32 @@ export default function DashboardShell({ title, description, children }: Dashboa
     })),
   );
 
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
   const unreadCount = useMemo(() => notifications.filter((item) => item.unread).length, [notifications]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
     window.localStorage.setItem("kubewatch-theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    if (!notificationsOpen) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => setNotificationsLoading(false), 350);
+    const handlePointerDown = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setNotificationsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener("mousedown", handlePointerDown);
+    };
+  }, [notificationsOpen]);
 
   return (
     <div className="min-h-screen text-slate-900 transition-colors dark:text-slate-100">
@@ -91,10 +112,14 @@ export default function DashboardShell({ title, description, children }: Dashboa
                 ))}
               </div>
               <div className="flex flex-wrap items-center gap-3 xl:justify-end">
-                <div className="relative">
+                <div className="relative" ref={dropdownRef}>
                   <button
                     type="button"
-                    onClick={() => setNotificationsOpen((open) => !open)}
+                    onClick={() => {
+                      setNotificationsLoading(true);
+                      setNotificationsOpen((open) => !open);
+                      window.setTimeout(() => setNotificationsLoading(false), 350);
+                    }}
                     className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-slate-50/90 px-4 py-2 text-sm text-slate-700 shadow-sm transition hover:border-emerald-400/40 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:hover:bg-white/10"
                     aria-label="Open notifications"
                   >
@@ -103,7 +128,7 @@ export default function DashboardShell({ title, description, children }: Dashboa
                     {unreadCount > 0 ? <span className="rounded-full bg-rose-500/15 px-2 py-0.5 text-xs font-semibold text-rose-700 dark:text-rose-200">{unreadCount}</span> : null}
                   </button>
                   {notificationsOpen ? (
-                    <div className="absolute right-0 z-20 mt-3 w-[22rem] rounded-[1.5rem] border border-slate-200/80 bg-white/95 p-4 shadow-[0_30px_100px_rgba(15,23,42,0.22)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/95">
+                    <div className="fixed right-4 top-28 z-[110] w-[min(24rem,calc(100vw-1.5rem))] rounded-[1.75rem] border border-slate-200/80 bg-white/95 p-4 shadow-[0_30px_120px_rgba(15,23,42,0.22)] backdrop-blur-xl transition-all duration-200 animate-in fade-in zoom-in dark:border-white/10 dark:bg-slate-950/95 sm:right-6 lg:top-32">
                       <div className="mb-3 flex items-center justify-between gap-3">
                         <div>
                           <p className="text-sm font-semibold text-slate-900 dark:text-white">Realtime notification center</p>
@@ -117,8 +142,13 @@ export default function DashboardShell({ title, description, children }: Dashboa
                           <CheckCheck className="h-3.5 w-3.5" /> Mark all read
                         </button>
                       </div>
-                      <div className="space-y-3">
-                        {notifications.map((item) => (
+                      {notificationsLoading ? (
+                        <div className="rounded-3xl border border-dashed border-slate-200/70 bg-slate-50/90 p-6 text-sm text-slate-600 dark:border-white/10 dark:bg-slate-900/80 dark:text-slate-300">Loading alert stream…</div>
+                      ) : notifications.length === 0 ? (
+                        <div className="rounded-3xl border border-dashed border-slate-200/70 bg-slate-50/90 p-6 text-sm text-slate-600 dark:border-white/10 dark:bg-slate-900/80 dark:text-slate-300">No active issues are currently being reported.</div>
+                      ) : (
+                        <div className="space-y-3">
+                          {notifications.map((item) => (
                           <button
                             key={item.id}
                             type="button"
@@ -139,7 +169,8 @@ export default function DashboardShell({ title, description, children }: Dashboa
                             </div>
                           </button>
                         ))}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   ) : null}
                 </div>
