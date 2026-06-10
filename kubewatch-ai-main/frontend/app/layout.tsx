@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "KubeWatch AI",
-  description: "A cloud-native Kubernetes observability dashboard built with Next.js, TypeScript, and TailwindCSS.",
+  title: "KubeWatch AI | SaaS Observability Platform",
+  description: "A production-grade Kubernetes observability dashboard for SRE, platform, and cloud operations teams.",
 };
 
 export default function RootLayout({

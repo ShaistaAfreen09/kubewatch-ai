@@ -5,6 +5,7 @@ import { HealthWidget } from "@/components/ui/health-widget";
 import { MetricCard } from "@/components/ui/metric-card";
 import { MetricsChart } from "@/components/metrics-chart";
 import { TelemetryCard, TelemetryStatRow } from "@/components/ui/telemetry-card";
+import { DependencyGraph, ErrorRateCards, FlowTimeline, LatencyBreakdown, TraceHighlights } from "@/components/trace-visuals";
 
 const latencyCards = [
   { label: "Trace ingest rate", value: "82K/s", note: "Spans received in the last minute", accent: "text-violet-300" },
@@ -44,7 +45,7 @@ export default function OpenTelemetryPage() {
       title="OpenTelemetry"
       description="A distributed tracing overview for telemetry health, latency, and span error visibility."
     >
-      <div className="grid gap-8 xl:grid-cols-[1.3fr_0.9fr]">
+      <div className="grid gap-8 xl:grid-cols-[1.25fr_0.95fr]">
         <section className="space-y-6">
           <div className="grid gap-6 md:grid-cols-3">
             {latencyCards.map((card) => (
@@ -89,41 +90,45 @@ export default function OpenTelemetryPage() {
             accent="bg-violet-400/80"
           />
 
-          <Card className="border-white/10 bg-slate-950/80">
+          <Card className="glass-panel card-hover border-slate-200/80 bg-white/95 dark:border-white/10 dark:bg-slate-950/90">
             <CardHeader>
               <CardTitle>Distributed tracing overview</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-slate-400">
+              <p className="text-slate-600 dark:text-slate-400">
                 Mock telemetry data shows trace collection across service boundaries, latency distribution, and span error health. Use these insights to optimize instrumentation and reduce request-level failures.
               </p>
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-3xl bg-slate-900/70 p-5">
-                  <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Services traced</p>
-                  <p className="mt-3 text-3xl font-semibold text-white">24</p>
+                <div className="rounded-3xl border border-slate-200/70 bg-slate-50/90 p-5 dark:border-white/10 dark:bg-slate-900/80">
+                  <p className="text-sm uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Services traced</p>
+                  <p className="mt-3 text-3xl font-semibold text-slate-950 dark:text-white">24</p>
                 </div>
-                <div className="rounded-3xl bg-slate-900/70 p-5">
-                  <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Sampling rate</p>
-                  <p className="mt-3 text-3xl font-semibold text-white">78%</p>
+                <div className="rounded-3xl border border-slate-200/70 bg-slate-50/90 p-5 dark:border-white/10 dark:bg-slate-900/80">
+                  <p className="text-sm uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Sampling rate</p>
+                  <p className="mt-3 text-3xl font-semibold text-slate-950 dark:text-white">78%</p>
                 </div>
               </div>
             </CardContent>
           </Card>
+
+          <DependencyGraph />
+          <FlowTimeline />
+          <LatencyBreakdown />
         </section>
 
         <aside className="space-y-6">
-          <Card className="border-white/10 bg-slate-950/80">
+          <Card className="glass-panel card-hover border-slate-200/80 bg-white/95 dark:border-white/10 dark:bg-slate-950/90">
             <CardHeader>
               <CardTitle>Service latency cards</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {serviceLatency.map((item) => (
-                  <div key={item.service} className="rounded-3xl bg-slate-900/70 p-4">
+                  <div key={item.service} className="rounded-3xl border border-slate-200/70 bg-slate-50/90 p-4 dark:border-white/10 dark:bg-slate-900/80">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-sm text-slate-400">{item.service}</p>
-                        <p className="mt-1 text-lg font-semibold text-slate-100">{item.latency}</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">{item.service}</p>
+                        <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">{item.latency}</p>
                       </div>
                       <Badge variant={item.health === "healthy" ? "success" : item.health === "degraded" ? "warning" : "danger"}>
                         {item.trend}
@@ -134,6 +139,9 @@ export default function OpenTelemetryPage() {
               </div>
             </CardContent>
           </Card>
+
+          <ErrorRateCards />
+          <TraceHighlights />
 
           <TelemetryCard title="Telemetry ingestion status">
             <div className="space-y-4">

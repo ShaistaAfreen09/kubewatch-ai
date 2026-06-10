@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StateCard } from "@/components/ui/state-card";
 
 type IncidentSeverity = "critical" | "high" | "medium" | "low";
 
@@ -54,10 +55,11 @@ export function LiveIncidentFeed() {
   const [incidents, setIncidents] = useState<Incident[]>(initialIncidents);
   const [status, setStatus] = useState("connecting");
 
+  const statusTone = status === "connected" ? "success" : status === "error" || status === "disconnected" ? "warning" : "muted";
+
   useEffect(() => {
     const wsUrl = buildWebSocketUrl();
     if (!wsUrl) {
-      setStatus("unsupported");
       return;
     }
 
@@ -91,23 +93,31 @@ export function LiveIncidentFeed() {
   }, []);
 
   return (
-    <Card className="border-white/10 bg-slate-950/80">
+    <Card className="border border-slate-200/80 bg-gradient-to-br from-white via-slate-50 to-white shadow-sm dark:border-white/10 dark:bg-gradient-to-br dark:from-slate-950/90 dark:via-slate-900/90 dark:to-slate-950/90">
       <CardHeader>
         <div className="flex items-center justify-between gap-3">
           <div>
             <CardTitle>Realtime incident feed</CardTitle>
+            <CardDescription>Live pipeline status and event activity for operators.</CardDescription>
           </div>
-          <Badge variant={status === "connected" ? "default" : status === "connecting" ? "muted" : "warning"}>
-            {status}
-          </Badge>
+          <Badge variant={statusTone}>{status}</Badge>
         </div>
       </CardHeader>
       <CardContent>
+        {status === "connecting" ? (
+          <StateCard variant="loading" title="Connecting to incident stream" description="The live alert channel is establishing a connection. Existing fallback data remains visible while the feed is warming up." actionLabel="Status: Initializing" />
+        ) : null}
+        {status === "error" || status === "disconnected" ? (
+          <StateCard variant="error" title="Live feed unavailable" description="The WebSocket stream is not responding right now, but the incident view continues to show the latest known data." actionLabel="Status: Offline" />
+        ) : null}
+        {status === "connected" && incidents.length === 0 ? (
+          <StateCard variant="empty" title="No active incidents" description="No live incidents are currently being reported from this workspace." actionLabel="Status: Healthy" />
+        ) : null}
         <div className="space-y-4">
           {incidents.map((incident, index) => (
             <div
               key={`${incident.id}-${incident.lastSeen}-${index}`}
-              className="animate-pulse rounded-3xl border border-white/10 bg-slate-900/80 p-4 transition-transform duration-300 hover:-translate-y-1"
+              className="animate-pulse rounded-3xl border border-slate-200/80 bg-slate-50/90 p-4 transition-transform duration-300 hover:-translate-y-1 dark:border-white/10 dark:bg-slate-900/80"
             >
               <div className="flex items-start justify-between gap-4">
                 <div>

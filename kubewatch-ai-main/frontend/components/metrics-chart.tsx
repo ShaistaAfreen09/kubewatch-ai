@@ -11,7 +11,7 @@ export function MetricsChart({ title, labels, values, accent }: MetricsChartProp
   const max = Math.max(...values, 1);
 
   return (
-    <Card className="border-white/10 bg-slate-950/80">
+    <Card className="border border-slate-200/80 bg-gradient-to-br from-white via-slate-50 to-white shadow-sm dark:border-white/10 dark:bg-gradient-to-br dark:from-slate-950/90 dark:via-slate-900/90 dark:to-slate-950/90">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
@@ -21,7 +21,7 @@ export function MetricsChart({ title, labels, values, accent }: MetricsChartProp
             {values.map((value, index) => (
               <div key={index} className="relative flex-1 text-center">
                 <div
-                  className={`mx-auto h-48 w-full max-w-[48px] rounded-3xl bg-slate-800 ${accent}`}
+                  className={`mx-auto h-48 w-full max-w-[48px] rounded-3xl bg-slate-200/80 dark:bg-slate-800 ${accent}`}
                   style={{ height: `${Math.max(12, (value / max) * 100)}%` }}
                 />
                 <p className="mt-3 text-xs text-slate-500">{labels[index]}</p>

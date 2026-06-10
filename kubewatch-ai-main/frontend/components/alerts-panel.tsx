@@ -9,7 +9,7 @@ const alerts = [
 
 export function AlertsPanel() {
   return (
-    <Card className="border-white/10 bg-slate-950/80">
+    <Card className="border border-slate-200/80 bg-gradient-to-br from-white via-slate-50 to-white shadow-sm dark:border-white/10 dark:bg-gradient-to-br dark:from-slate-950/90 dark:via-slate-900/90 dark:to-slate-950/90">
       <CardHeader>
         <CardTitle>Realtime Alerts</CardTitle>
       </CardHeader>

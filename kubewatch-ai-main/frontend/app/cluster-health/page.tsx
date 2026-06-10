@@ -14,7 +14,7 @@ const healthWidgets: Array<{ title: string; status: HealthStatus; value: string;
 
 export default function ClusterHealthPage() {
   return (
-    <DashboardShell title="Cluster Health" description="Understand service reliability and cluster health across your Kubernetes estate.">
+    <DashboardShell title="Cluster Explorer" description="Understand service reliability, cluster posture, and operational risk across your Kubernetes estate.">
       <div className="grid gap-8 xl:grid-cols-[1.5fr_0.9fr]">
         <section className="space-y-6">
           <div className="grid gap-6 md:grid-cols-3">
